@@ -1,0 +1,6 @@
+#glCanvas {
+    border: 4px;
+    border-style: dashed; 
+    border-color: black;
+    object-position: 10, 10;
+}
