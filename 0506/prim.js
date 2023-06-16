@@ -75,9 +75,10 @@ class prim {
     gl.useProgram(shaderProgram);
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, MatrBuf);
-    gl.bufferData(gl.UNIFORM_BUFFER, 4 * 16 * 2, gl.STATIC_DRAW);
+    gl.bufferData(gl.UNIFORM_BUFFER, 4 * 16 * 2 + 4 * 4, gl.STATIC_DRAW);
     gl.bufferSubData(gl.UNIFORM_BUFFER, 0, new Float32Array(matrWVP.toArray()), 0);
     gl.bufferSubData(gl.UNIFORM_BUFFER, 4 * 16, new Float32Array(matrWTr.toArray()), 0);
+    gl.bufferSubData(gl.UNIFORM_BUFFER, 4 * 16 * 2, new Float32Array([camera.loc.x, camera.loc.y, camera.loc.z, 1]), 0);
 
     let bufPos = gl.getUniformBlockIndex(shaderProgram, "UBuf");
     gl.uniformBlockBinding(shaderProgram, bufPos, 0);

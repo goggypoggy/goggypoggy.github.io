@@ -6,6 +6,7 @@ uniform UBuf
 {
     mat4 MatrWVP;
     mat4 MatrW;
+    vec4 CamPos;
 };
 
 in vec3 in_pos;
@@ -20,5 +21,5 @@ void main( void )
     gl_Position = MatrWVP * vec4(in_pos, 1.0); 
     vs_Pos = (MatrW * vec4(in_pos, 1.0)).xyz;
     vs_Norm = mat3(MatrW) * in_norm;
-    vs_Color = vec4(0.3, 0.2, 0.4, 1.0);
+    vs_Color = vec4(0.1, 0.5, 0.7, 1.0);
 }

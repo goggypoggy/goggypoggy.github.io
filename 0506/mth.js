@@ -16,7 +16,7 @@ function D2R(A) {
 }
 
 function R2D(R) {
-  return R / pi * 180.0;
+  return (R / pi) * 180.0;
 }
 
 class mat4 {
@@ -328,12 +328,12 @@ class mat4 {
   }
   matrFrustrum(l, r, b, t, n, f) {
     return new mat4(
-      2 * n / (r - l),
+      (2 * n) / (r - l),
       0,
       0,
       0,
       0,
-      2 * n / (t - b),
+      (2 * n) / (t - b),
       0,
       0,
       (r + l) / (r - l),
@@ -342,7 +342,7 @@ class mat4 {
       -1,
       0,
       0,
-      -2 * n * f / (f - n),
+      (-2 * n * f) / (f - n),
       0
     );
   }
@@ -350,48 +350,38 @@ class mat4 {
     let b = [];
 
     for (let i = 0; i < 4; i++)
-      for (let j = 0; j < 4; j++)
-        b.push(this.a[i][j]);
-    
+      for (let j = 0; j < 4; j++) b.push(this.a[i][j]);
+
     return b;
   }
   matrRotateX(a) {
     let ra = D2R(a);
-    let si = Math.sin(ra), co = Math.cos(ra);
+    let si = Math.sin(ra),
+      co = Math.cos(ra);
 
-    return new mat4(
-      1, 0, 0, 0,
-      0, co, si, 0,
-      0, -si, co, 0,
-      0, 0, 0, 1);
+    return new mat4(1, 0, 0, 0, 0, co, si, 0, 0, -si, co, 0, 0, 0, 0, 1);
   }
   matrRotateY(a) {
     let ra = D2R(a);
-    let si = Math.sin(ra), co = Math.cos(ra);
+    let si = Math.sin(ra),
+      co = Math.cos(ra);
 
-    return new mat4(
-      co, 0, -si, 0,
-      0, 1, 0, 0,
-      si, 0, co, 0,
-      0, 0, 0, 1);
+    return new mat4(co, 0, -si, 0, 0, 1, 0, 0, si, 0, co, 0, 0, 0, 0, 1);
   }
   matrRotateZ(a) {
     let ra = D2R(a);
-    let si = Math.sin(ra), co = Math.cos(ra);
+    let si = Math.sin(ra),
+      co = Math.cos(ra);
 
-    return new mat4(
-      co, si, 0, 0, 
-      -si, co, 0, 0,
-      0, 0, 1, 0,   
-      0, 0, 0, 1);  
+    return new mat4(co, si, 0, 0, -si, co, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
-  rotX (a) {
+  rotX(a) {
     return this.set(this.mulMatr(this.matrRotateX(a)));
   }
-  rotY (a) {
+  rotY(a) {
     return this.set(this.mulMatr(this.matrRotateY(a)));
   }
-  rotZ (a) {
+  rotZ(a) {
     return this.set(this.mulMatr(this.matrRotateZ(a)));
   }
 }
@@ -405,7 +395,6 @@ class vec3 {
     else (this.x = x), (this.y = y), (this.z = z);
     return this;
   }
-
   set(x, y, z) {
     if (x == undefined) (this.x = 0), (this.y = 0), (this.z = 0);
     else if (typeof x == "object")
@@ -414,7 +403,6 @@ class vec3 {
     else (this.x = x), (this.y = y), (this.z = z);
     return this;
   }
-
   add(x, y, z) {
     if (typeof x == "object")
       return new vec3(this.x + x.x, this.y + x.y, this.z + x.z);
@@ -424,7 +412,6 @@ class vec3 {
       return new vec3(this.x + x, this.y + x, this.z + x);
     else return new vec3(this);
   }
-
   sub(x, y, z) {
     if (typeof x == "object")
       return new vec3(this.x - x.x, this.y - x.y, this.z - x.z);
@@ -434,21 +421,17 @@ class vec3 {
       return new vec3(this.x - x, this.y - x, this.z - x);
     else return new vec3(this);
   }
-
   mulNum(n) {
     if (n == undefined || typeof n != "number") return new vec3(this);
     else return new vec3(this.x * n, this.y * n, this.z * n);
   }
-
   divNum(n) {
     if (n == undefined || typeof n != "number") return new vec3(this);
     else return new vec3(this.x / n, this.y / n, this.z / n);
   }
-
   neg() {
     return new vec3(-this.x, -this.y, -this.z);
   }
-
   dot(x, y, z) {
     if (typeof x == "object") return this.x * x.x + this.y * x.y + this.z * x.z;
     else if (x != undefined && y != undefined && z != undefined)
@@ -456,7 +439,6 @@ class vec3 {
     else if (x != undefined) return this.x * x + this.y * x + this.z * x;
     else return this;
   }
-
   cross(x, y, z) {
     if (typeof x == "object")
       return new vec3(
@@ -478,19 +460,137 @@ class vec3 {
       );
     else return new vec3(0);
   }
-
   len2() {
     return this.dot(this);
   }
-
   len() {
     return Math.sqrt(this.dot(this));
   }
-
   norm() {
     let len2 = this.dot(this);
 
     if (len2 == 1 || len2 == 0) return this;
     else return this.divNum(Math.sqrt(len2));
+  }
+  pointTransfrom(m) {
+    return new vec3(
+      this.x * m.a[0][0] +
+        this.y * m.a[1][0] +
+        this.z * m.a[2][0] +
+        1 * m.a[3][0],
+      this.x * m.a[0][1] +
+        this.y * m.a[1][1] +
+        this.z * m.a[2][1] +
+        1 * m.a[3][1],
+      this.x * m.a[0][2] +
+        this.y * m.a[1][2] +
+        this.z * m.a[2][2] +
+        1 * m.a[3][2]
+    );
+  }
+}
+
+class cam {
+  configMatr = () => {
+    let rx = projSize,
+      ry = projSize;
+
+    if (gl.canvas.width > gl.canvas.height)
+      rx *= gl.canvas.width / gl.canvas.height;
+    else ry *= gl.canvas.height / gl.canvas.width;
+
+    matrV = matrV.matrView(this.loc, this.at, this.up);
+    matrP = matrP.matrFrustrum(
+      -rx / 2,
+      rx / 2,
+      -ry / 2,
+      ry / 2,
+      projDist,
+      projFarClip
+    );
+    matrVP = matrV.mulMatr(matrP);
+  };
+  constructor(loc, at, up) {
+    if (loc != undefined) this.loc = new vec3(loc);
+    else this.loc = new vec3(0, 0, 10);
+    if (at != undefined) this.at = new vec3(at);
+    else this.at = new vec3(0);
+    if (up != undefined) this.up = new vec3(up);
+    else this.up = new vec3(0, 1, 0);
+
+    this.configMatr();
+  }
+  set(loc, at, up) {
+    if (loc != undefined) this.loc.set(loc);
+    else this.loc.set(0, 0, 10);
+    if (at != undefined) this.at.set(at);
+    else this.at.set(0);
+    if (up != undefined) this.up.set(up);
+    else this.up.set(0, 1, 0);
+
+    this.configMatr();
+  }
+  move() {
+    let dist, cosT, sinT, plen, cosP, sinP, azimuth, elevator;
+
+    dist = this.at.sub(this.loc).len();
+    cosT = (this.loc.y - this.at.y) / dist;
+    sinT = Math.sqrt(1 - cosT * cosT);
+
+    plen = dist * sinT;
+    cosP = (this.loc.z - this.at.z) / plen;
+    sinP = (this.loc.x - this.at.x) / plen;
+
+    azimuth = R2D(Math.atan2(sinP, cosP));
+    elevator = R2D(Math.atan2(sinT, cosT));
+
+    azimuth +=
+      Time.globalDelta *
+      10 *
+      (-30 * mL * mdx);
+
+    elevator +=
+      Time.globalDelta *
+      10 *
+      (-30 * mL * mdy);
+
+    elevator = Math.min(Math.max(0.01, elevator), 177.99);
+
+    dist += Time.globalDelta * 8 * 0 /*Ani->Mdz*/;
+
+    dist = Math.max(dist, 0.1);
+
+    if (mR == 1) {
+      let Wp, Hp, sx, sy, dv;
+
+      Wp = projSize;
+      Hp = projSize;
+      if (gl.canvas.width > gl.canvas.height)
+        Wp *= gl.canvas.width / gl.canvas.height;
+      else Hp *= gl.canvas.height / gl.canvas.width;
+
+      sx = (((-1 * mdx * Wp) / gl.canvas.width) * dist) / projDist;
+      sy = (((1 * mdy * Hp) / gl.canvas.height) * dist) / projDist;
+
+      let dir = this.at.sub(this.loc).norm();
+      let right = dir.cross(this.up).norm();
+
+      dv = right.mulNum(sx).add(this.up.mulNum(sy));
+      this.at = this.at.add(dv);
+      this.loc = this.loc.add(dv);
+    }
+
+    let vec = new vec3(0, dist, 0);
+    let matr = new mat4();
+    this.set(
+      vec.pointTransfrom(
+        matr
+          .matrRotateX(elevator)
+          .mulMatr(matr.matrRotateY(azimuth))
+          .mulMatr(matr.matrTranslate(this.at))
+      ),
+      this.at,
+      this.up
+    );
   }
 }

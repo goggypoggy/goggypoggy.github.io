@@ -54,7 +54,7 @@ class cube {
     this.Pr.draw();
   }
   response() {
-    angle++;
-    this.Pr.matrTrans = this.Pr.matrTrans.matrRotateY(angle).mulMatr(this.Pr.matrTrans.matrTranslate(this.pos));
+    this.angle += Time.localDelta * 180;
+    this.Pr.matrTrans = this.Pr.matrTrans.matrRotateY(this.angle).mulMatr(this.Pr.matrTrans.matrTranslate(this.pos));
   }
 }

@@ -7,17 +7,21 @@
     <body>
         <p>Platon's bodies</p>
         <script src = "mth.js"></script>
+        <script src = "timer.js"></script>
         <script src = "data.js"></script>
         <script src = "shader.js"></script>
         <script src = "prim.js"></script>
         <script src = "cube.js"></script>
         <script src = "main.js"></script>
         <script type="text/javascript">
-            window.addEventListener("load", ()=>{
-                main();
-            });
+            window.addEventListener("load", main);
         </script>
         <canvas id="glCanvas" width="800px" height="800px">
         </canvas>
+        <script type="text/javascript">
+            window.addEventListener("mouseup", eHndlr);
+            glCanvas.addEventListener("mousedown", eHndlr);
+            window.addEventListener("mousemove", eHndlr);
+        </script>
     </body>
 </html>
