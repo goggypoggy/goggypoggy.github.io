@@ -138,7 +138,22 @@ class mat4 {
   ) {
     if (typeof a00 == "object") {
       // mat4 from mat4 object in a00
-      this.a = a00.a;
+      this.a[0][0] = a00.a[0][0];
+      this.a[0][1] = a00.a[0][1];
+      this.a[0][2] = a00.a[0][2];
+      this.a[0][3] = a00.a[0][3];
+      this.a[1][0] = a00.a[1][0];
+      this.a[1][1] = a00.a[1][1];
+      this.a[1][2] = a00.a[1][2];
+      this.a[1][3] = a00.a[1][3];
+      this.a[2][0] = a00.a[2][0];
+      this.a[2][1] = a00.a[2][1];
+      this.a[2][2] = a00.a[2][2];
+      this.a[2][3] = a00.a[2][3];
+      this.a[3][0] = a00.a[3][0];
+      this.a[3][1] = a00.a[3][1];
+      this.a[3][2] = a00.a[3][2];
+      this.a[3][3] = a00.a[3][3];
     } else if (a00 != undefined && a01 == undefined) {
       // mat4 filled with a00
       this.a[0][0] = a00;
@@ -196,10 +211,10 @@ class mat4 {
     }
     return this;
   }
-  translate(v) {
+  matrTranslate(v) {
     return new mat4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v.x, v.y, v.z, 1);
   }
-  scale(v) {
+  matrScale(v) {
     return new mat4(v.x, 0, 0, 0, 0, v.y, 0, 0, 0, 0, v.z, 0, 0, 0, 0, 1);
   }
   mulMatr(m) {
@@ -213,7 +228,7 @@ class mat4 {
 
     return mr;
   }
-  transpose() {
+  matrTranspose() {
     let mr = new mat4(
       this.a[0][0],
       this.a[1][0],
@@ -313,21 +328,21 @@ class mat4 {
   }
   matrFrustrum(l, r, b, t, n, f) {
     return new mat4(
-      (2 * n) / (r - l),
+      2 * n / (r - l),
       0,
       0,
       0,
       0,
-      (2 * n) / (t - b),
+      2 * n / (t - b),
       0,
       0,
       (r + l) / (r - l),
-      (r + l) / (t - b),
-      (f + n) / -(f - n),
+      (t + b) / (t - b),
+      -(f + n) / (f - n),
       -1,
       0,
       0,
-      (-2 * n * f) / (f - n),
+      -2 * n * f / (f - n),
       0
     );
   }
@@ -370,6 +385,15 @@ class mat4 {
       0, 0, 1, 0,   
       0, 0, 0, 1);  
   }
+  rotX (a) {
+    return this.set(this.mulMatr(this.matrRotateX(a)));
+  }
+  rotY (a) {
+    return this.set(this.mulMatr(this.matrRotateY(a)));
+  }
+  rotZ (a) {
+    return this.set(this.mulMatr(this.matrRotateZ(a)));
+  }
 }
 
 class vec3 {
@@ -383,7 +407,11 @@ class vec3 {
   }
 
   set(x, y, z) {
-    (this.x = x), (this.y = y), (this.z = z);
+    if (x == undefined) (this.x = 0), (this.y = 0), (this.z = 0);
+    else if (typeof x == "object")
+      (this.x = x.x), (this.y = x.y), (this.z = x.z);
+    else if (y == undefined) (this.x = x), (this.y = x), (this.z = x);
+    else (this.x = x), (this.y = y), (this.z = z);
     return this;
   }
 
