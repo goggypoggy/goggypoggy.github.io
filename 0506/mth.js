@@ -9,6 +9,16 @@ function mat3determ(a00, a01, a02, a10, a11, a12, a20, a21, a22) {
   );
 }
 
+pi = 3.14159265358979323846;
+
+function D2R(A) {
+  return A * (pi / 180.0);
+}
+
+function R2D(R) {
+  return R / pi * 180.0;
+}
+
 class mat4 {
   constructor(
     a00,
@@ -194,14 +204,11 @@ class mat4 {
   }
   mulMatr(m) {
     let mr = new mat4(0);
-    let i;
-    let j;
-    let k;
-    let a;
+    let i, j, k;
 
     for (i = 0; i < 4; i++)
       for (j = 0; j < 4; j++) {
-        for (k = 0, a = 0; k < 4; k++) mr.a[i][j] += this.a[k][j] * m.a[i][k];
+        for (k = 0; k < 4; k++) mr.a[i][j] += this.a[i][k] * m.a[k][j];
       }
 
     return mr;
@@ -290,13 +297,13 @@ class mat4 {
       up.x,
       -dir.x,
       0,
-      right.x,
-      up.x,
-      -dir.x,
+      right.y,
+      up.y,
+      -dir.y,
       0,
-      right.x,
-      up.x,
-      -dir.x,
+      right.z,
+      up.z,
+      -dir.z,
       0,
       -loc.dot(right),
       -loc.dot(up),
@@ -315,14 +322,53 @@ class mat4 {
       0,
       0,
       (r + l) / (r - l),
-      (t + b) / (t - b),
-      -(f + n) / (f - n),
+      (r + l) / (t - b),
+      (f + n) / -(f - n),
       -1,
       0,
       0,
       (-2 * n * f) / (f - n),
       0
     );
+  }
+  toArray() {
+    let b = [];
+
+    for (let i = 0; i < 4; i++)
+      for (let j = 0; j < 4; j++)
+        b.push(this.a[i][j]);
+    
+    return b;
+  }
+  matrRotateX(a) {
+    let ra = D2R(a);
+    let si = Math.sin(ra), co = Math.cos(ra);
+
+    return new mat4(
+      1, 0, 0, 0,
+      0, co, si, 0,
+      0, -si, co, 0,
+      0, 0, 0, 1);
+  }
+  matrRotateY(a) {
+    let ra = D2R(a);
+    let si = Math.sin(ra), co = Math.cos(ra);
+
+    return new mat4(
+      co, 0, -si, 0,
+      0, 1, 0, 0,
+      si, 0, co, 0,
+      0, 0, 0, 1);
+  }
+  matrRotateZ(a) {
+    let ra = D2R(a);
+    let si = Math.sin(ra), co = Math.cos(ra);
+
+    return new mat4(
+      co, si, 0, 0, 
+      -si, co, 0, 0,
+      0, 0, 1, 0,   
+      0, 0, 0, 1);  
   }
 }
 
