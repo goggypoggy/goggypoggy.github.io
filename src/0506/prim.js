@@ -76,7 +76,6 @@ export class prim {
   draw() {
     let matrWTr = this.matrTrans.mulMatr(matrW);
     let matrWVP = this.matrTrans.mulMatr(matrW).mulMatr(camera.matrVP);
-    let posWVP = gl.getUniformLocation(shaderProgram, "MatrWVP");
 
     gl.useProgram(shaderProgram);
 

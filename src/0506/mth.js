@@ -13,7 +13,7 @@ function mat3determ(a00, a01, a02, a10, a11, a12, a20, a21, a22) {
   );
 }
 
-export const pi = 3.14159265358979323846;
+export const pi = 3.14159265358979;
 
 export function D2R(A) {
   return A * (pi / 180.0);

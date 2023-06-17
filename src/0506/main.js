@@ -12,10 +12,8 @@ let Scene = [];
 
 async function GLInit() {
   return new Promise((resolve, reject) => {
-    const shdInit = shaderInit();
-
     shaderInit()
-      .then((res) => {
+      .then(() => {
         Scene.push(new tetra(1, new vec3(-3, 0, 1.5)));
         Scene.push(new octa(1, new vec3(0, 0, 1.5)));
         Scene.push(new cube(1, new vec3(3, 0, 1.5)));
@@ -70,7 +68,7 @@ glCanvas.addEventListener("wheel", (event)=>{
 function main() {
   const init = GLInit();
   init
-    .then((res) => {
+    .then(() => {
       cycle();
     })
     .catch((err) => {
