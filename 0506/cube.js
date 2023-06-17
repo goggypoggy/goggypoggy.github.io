@@ -1,44 +1,26 @@
 class cube {
   constructor(size, pos) {
-    let V = [
-      new vert(new vec3(size, size, -size)),   // 0
-      new vert(new vec3(-size, size, -size)),  // 1
-      new vert(new vec3(-size, -size, -size)), // 2
-      new vert(new vec3(size, -size, -size)),  // 3
-
-      new vert(new vec3(size, size, size)),    // 4
-      new vert(new vec3(-size, size, size)),   // 5
-      new vert(new vec3(-size, -size, size)),  // 6
-      new vert(new vec3(size, -size, size)),   // 7
-
-      new vert(new vec3(size, size, -size)),   // 0 8
-      new vert(new vec3(size, -size, -size)),  // 3 9
-      new vert(new vec3(size, size, size)),    // 4 10
-      new vert(new vec3(size, -size, size)),   // 7 11
-
-      new vert(new vec3(-size, size, -size)),  // 1 12
-      new vert(new vec3(-size, -size, -size)), // 2 13
-      new vert(new vec3(-size, size, size)),   // 5 14
-      new vert(new vec3(-size, -size, size)),  // 6 15
-
-      new vert(new vec3(-size, -size, -size)), // 2 16
-      new vert(new vec3(size, -size, -size)),  // 3 17
-      new vert(new vec3(-size, -size, size)),  // 6 18
-      new vert(new vec3(size, -size, size)),   // 7 19
-
-      new vert(new vec3(size, size, -size)),   // 0 20
-      new vert(new vec3(-size, size, -size)),  // 1 21
-      new vert(new vec3(size, size, size)),    // 4 22
-      new vert(new vec3(-size, size, size)),   // 5 23
+    size = size / 2;
+    let Vref = [
+      new vert(new vec3(-size, -size, -size)), // 0
+      new vert(new vec3(-size, size, -size)), // 1
+      new vert(new vec3(size, size, -size)), // 2
+      new vert(new vec3(size, -size, -size)), // 3
+      new vert(new vec3(-size, -size, size)), // 4
+      new vert(new vec3(-size, size, size)), // 5
+      new vert(new vec3(size, size, size)), // 6
+      new vert(new vec3(size, -size, size)) // 7
     ];
-    let I = [
-      0, 1, 2, 0, 2, 3, // front side
-      4, 5, 6, 4, 6, 7, // back side
-      8, 9, 10, 9, 10, 11, // right side
-      13, 12, 14, 13, 15, 14, // left side
-      16, 17, 18, 17, 18, 19, // lower side
-      20, 21, 22, 21, 22, 23, // upper side
+    let Iref = [
+      0, 1, 2, 0, 3, 2,
+      0, 1, 5, 0, 4, 5,
+      4, 5, 6, 4, 7, 6,
+      3, 2, 6, 3, 7, 6,
+      0, 4, 7, 0, 3, 7,
+      1, 2, 6, 1, 5, 6
     ];
+    let V = [], I = []; 
+    vertRefToTrg(Vref, Iref, V, I);
 
     this.Pr = new prim(V, I);
     this.Pr.createNorms();
@@ -55,6 +37,10 @@ class cube {
   }
   response() {
     this.angle += Time.localDelta * 180;
-    this.Pr.matrTrans = this.Pr.matrTrans.matrRotateY(this.angle).mulMatr(this.Pr.matrTrans.matrTranslate(this.pos));
+    let matr = new mat4();
+    this.Pr.matrTrans = matr
+      .matrRotateX(this.angle)
+      .rotY(this.angle)
+      .mulMatr(matr.matrTranslate(this.pos));
   }
 }

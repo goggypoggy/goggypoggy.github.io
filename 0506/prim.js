@@ -89,3 +89,10 @@ class prim {
     gl.drawElements(gl.TRIANGLES, this.NumOfElem, gl.UNSIGNED_INT, this.IBuf);
   }
 }
+
+function vertRefToTrg(Vref, Iref, Vtrg, Itrg) {
+  for (let i = 0; i < Iref.length; i++) {
+    Itrg.push(i);
+    Vtrg.push(new vert(new vec3(Vref[Iref[i]].P.x, Vref[Iref[i]].P.y, Vref[Iref[i]].P.z)));
+  }
+}

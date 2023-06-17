@@ -10,7 +10,7 @@ async function GLInit() {
     shaderInit()
       .then((res) => {
         Scene.push(new cube(1, new vec3(2, 0, 0)));
-        Scene.push(new cube(1, new vec3(-2, 0, 0)));
+        Scene.push(new tetra(1, new vec3(-2, 0, 0)));
 
         MatrBuf = gl.createBuffer();
 
@@ -38,7 +38,7 @@ function cycle() {
   if (wasInput)
     wasInput = false;
   else
-    mdx = 0, mdy = 0;
+    mdx = 0, mdy = 0, mdz = 0;
 
   Time.response();
   camera.move();
@@ -64,12 +64,18 @@ function main() {
 function eHndlr(event) {
   switch (event.type) {
     case "mouseup":
+      event.preventDefault();
       if (event.button == 0) mL = 0;
       else mR = 0;
       break;
     case "mousedown":
+      event.preventDefault();
       if (event.button == 0) mL = 1;
       else mR = 1;
+      break;
+    case "wheel":
+      event.preventDefault();
+      mdz = event.deltaY / 10;
       break;
     default:
       mdx = mx - event.clientX;
@@ -82,5 +88,4 @@ function eHndlr(event) {
   mdx *= -1;
   mdy *= -1;
   wasInput = true;
-  // event.preventDefault();
 }

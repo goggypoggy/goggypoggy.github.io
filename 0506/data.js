@@ -12,6 +12,6 @@ let
   projDist = 1,
   projSize = 1,
   projFarClip = 3000000,
-  mx = 0, my = 0, mz = 0,
+  mx = 0, my = 0,
   mdx = 0, mdy = 0, mdz = 0,
   mL = 0, mR = 0;

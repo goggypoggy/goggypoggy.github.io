@@ -21,5 +21,5 @@ void main( void )
     gl_Position = MatrWVP * vec4(in_pos, 1.0); 
     vs_Pos = (MatrW * vec4(in_pos, 1.0)).xyz;
     vs_Norm = mat3(MatrW) * in_norm;
-    vs_Color = vec4(0.1, 0.5, 0.7, 1.0);
+    vs_Color = vec4(0.6, 0.8, 0.9, 1.0);
 }

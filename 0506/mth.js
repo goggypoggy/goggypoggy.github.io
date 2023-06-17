@@ -544,23 +544,17 @@ class cam {
     azimuth = R2D(Math.atan2(sinP, cosP));
     elevator = R2D(Math.atan2(sinT, cosT));
 
-    azimuth +=
-      Time.globalDelta *
-      10 *
-      (-30 * mL * mdx);
+    azimuth += Time.globalDelta * 10 * (-30 * mR * mdx);
 
-    elevator +=
-      Time.globalDelta *
-      10 *
-      (-30 * mL * mdy);
+    elevator += Time.globalDelta * 10 * (-30 * mR * mdy);
 
     elevator = Math.min(Math.max(0.01, elevator), 177.99);
 
-    dist += Time.globalDelta * 8 * 0 /*Ani->Mdz*/;
+    dist += Time.globalDelta * 8 * mdz;
 
     dist = Math.max(dist, 0.1);
 
-    if (mR == 1) {
+    if (mL == 1) {
       let Wp, Hp, sx, sy, dv;
 
       Wp = projSize;
@@ -570,12 +564,13 @@ class cam {
       else Hp *= gl.canvas.height / gl.canvas.width;
 
       sx = (((-1 * mdx * Wp) / gl.canvas.width) * dist) / projDist;
-      sy = (((1 * mdy * Hp) / gl.canvas.height) * dist) / projDist;
+      sy = (((-1 * mdy * Hp) / gl.canvas.height) * dist) / projDist;
 
       let dir = this.at.sub(this.loc).norm();
       let right = dir.cross(this.up).norm();
+      let up1 = dir.cross(right);
 
-      dv = right.mulNum(sx).add(this.up.mulNum(sy));
+      dv = right.mulNum(sx).add(up1.mulNum(sy));
       this.at = this.at.add(dv);
       this.loc = this.loc.add(dv);
     }
