@@ -35,8 +35,8 @@ class octa {
       this.angle += Time.localDelta * 180;
       let matr = new mat4();
       this.Pr.matrTrans = matr
-        .matrRotateX(this.angle)
-        .rotY(this.angle)
+        .matrRotateY(this.angle)
+        .rotX(this.angle)
         .mulMatr(matr.matrTranslate(this.pos));
     }
   }

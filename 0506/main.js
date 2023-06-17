@@ -9,15 +9,17 @@ async function GLInit() {
 
     shaderInit()
       .then((res) => {
-        Scene.push(new cube(1, new vec3(2, 0, 1)));
-        Scene.push(new tetra(1, new vec3(-2, 0, 1)));
-        Scene.push(new octa(1, new vec3(0, 0, 1)));
-        Scene.push(new icoso(1, new vec3(4.5, 0, 1)));
+        Scene.push(new tetra(1, new vec3(-3, 0, 1.5)));
+        Scene.push(new octa(1, new vec3(0, 0, 1.5)));
+        Scene.push(new cube(1, new vec3(3, 0, 1.5)));
+        Scene.push(new dodeca(1, new vec3(6, 0, 1.5)));
+        Scene.push(new icoso(1, new vec3(9, 0, 1.5)));
 
-        Scene.push(new cube(1, new vec3(2, 0, -1), false));
-        Scene.push(new tetra(1, new vec3(-2, 0, -1), false));
-        Scene.push(new octa(1, new vec3(0, 0, -1), false));
-        Scene.push(new icoso(1, new vec3(4.5, 0, -1), false));
+        Scene.push(new tetra(1, new vec3(-3, 0, -1.5), false));
+        Scene.push(new octa(1, new vec3(0, 0, -1.5), false));
+        Scene.push(new cube(1, new vec3(3, 0, -1.5), false));
+        Scene.push(new dodeca(1, new vec3(6, 0, -1.5), false));
+        Scene.push(new icoso(1, new vec3(9, 0, -1.5), false));
 
         MatrBuf = gl.createBuffer();
 
