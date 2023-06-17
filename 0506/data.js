@@ -1,17 +1,3 @@
-let 
-  gl,
-  shaderProgram,
-  Scene = [],
-  MatrBuf,
-  camera,
-  angle = 0,
-  matrW = new mat4(),
-  matrV = new mat4(),
-  matrP = new mat4(),
-  matrVP = new mat4(),
-  projDist = 1,
-  projSize = 1,
-  projFarClip = 3000000,
-  mx = 0, my = 0,
-  mdx = 0, mdy = 0, mdz = 0,
-  mL = 0, mR = 0;
+import { mat4 } from "./mth.js";
+
+export let matrW = new mat4();

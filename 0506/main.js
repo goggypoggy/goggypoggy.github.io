@@ -1,10 +1,17 @@
-let wasInput = false;
+import { Time } from "./timer.js";
+import { input } from "./input.js";
+import { gl, shaderInit } from "./shader.js";
+import { vec3, camera }  from "./mth.js";
+import { tetra } from "./tetra.js";
+import { octa } from "./octa.js";
+import { cube } from "./cube.js";
+import { dodeca } from "./dodeca.js";
+import { icoso } from "./icoso.js";
+
+let Scene = [];
 
 async function GLInit() {
   return new Promise((resolve, reject) => {
-    let canvas = document.getElementById("glCanvas");
-    gl = canvas.getContext("webgl2");
-
     const shdInit = shaderInit();
 
     shaderInit()
@@ -21,16 +28,6 @@ async function GLInit() {
         Scene.push(new dodeca(1, new vec3(6, 0, -1.5), false));
         Scene.push(new icoso(1, new vec3(9, 0, -1.5), false));
 
-        MatrBuf = gl.createBuffer();
-
-        matrW = new mat4();
-
-        camera = new cam(
-          new vec3(1.5, 5, 14),
-          new vec3(1.5, 0, 0),
-          new vec3(0, 1, 0)
-        );
-
         resolve();
       })
       .catch((err) => {
@@ -44,11 +41,7 @@ function cycle() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   gl.enable(gl.DEPTH_TEST);
 
-  if (wasInput)
-    wasInput = false;
-  else
-    mdx = 0, mdy = 0, mdz = 0;
-
+  input.update();
   Time.response();
   camera.move();
 
@@ -59,7 +52,22 @@ function cycle() {
   window.requestAnimationFrame(cycle);
 }
 
-function main() {
+let glCanvas = document.getElementById("glCanvas");
+
+window.addEventListener("mouseup", (event)=>{
+  input.handleEvent(event);
+});
+glCanvas.addEventListener("mousedown", (event)=>{
+  input.handleEvent(event);
+});
+window.addEventListener("mousemove", (event)=>{
+  input.handleEvent(event);
+});
+glCanvas.addEventListener("wheel", (event)=>{
+  input.handleEvent(event);
+});
+
+export function main() {
   const init = GLInit();
   init
     .then((res) => {
@@ -68,33 +76,4 @@ function main() {
     .catch((err) => {
       console.log(err);
     });
-}
-
-function eHndlr(event) {
-  switch (event.type) {
-    case "mouseup":
-      event.preventDefault();
-      if (event.button == 0) mL = 0;
-      else mR = 0;
-      break;
-    case "mousedown":
-      event.preventDefault();
-      if (event.button == 0) mL = 1;
-      else mR = 1;
-      break;
-    case "wheel":
-      event.preventDefault();
-      mdz = event.deltaY / 10;
-      break;
-    default:
-      mdx = mx - event.clientX;
-      mdy = my - event.clientY;
-      mx = event.clientX;
-      my = event.clientY;
-      break;
-  }
-  // console.log([mx, my, mdx, mdy].join(" : "));
-  mdx *= -1;
-  mdy *= -1;
-  wasInput = true;
 }

@@ -44,4 +44,4 @@ class time {
   }
 }
 
-let Time = new time();
+export let Time = new time();

@@ -1,3 +1,7 @@
+import { gl } from "./shader.js";
+import { Time } from "./timer.js";
+import { input } from "./input.js";
+
 function mat3determ(a00, a01, a02, a10, a11, a12, a20, a21, a22) {
   return (
     a00 * a11 * a22 +
@@ -9,17 +13,17 @@ function mat3determ(a00, a01, a02, a10, a11, a12, a20, a21, a22) {
   );
 }
 
-const pi = 3.14159265358979323846;
+export const pi = 3.14159265358979323846;
 
-function D2R(A) {
+export function D2R(A) {
   return A * (pi / 180.0);
 }
 
-function R2D(R) {
+export function R2D(R) {
   return (R / pi) * 180.0;
 }
 
-class mat4 {
+export class mat4 {
   constructor(
     a00,
     a01,
@@ -386,7 +390,7 @@ class mat4 {
   }
 }
 
-class vec3 {
+export class vec3 {
   constructor(x, y, z) {
     if (x == undefined) (this.x = 0), (this.y = 0), (this.z = 0);
     else if (typeof x == "object")
@@ -492,23 +496,23 @@ class vec3 {
 
 class cam {
   configMatr = () => {
-    let rx = projSize,
-      ry = projSize;
+    let rx = this.projSize,
+      ry = this.projSize;
 
     if (gl.canvas.width > gl.canvas.height)
       rx *= gl.canvas.width / gl.canvas.height;
     else ry *= gl.canvas.height / gl.canvas.width;
 
-    matrV = matrV.matrView(this.loc, this.at, this.up);
-    matrP = matrP.matrFrustrum(
+    this.matrV = this.matrV.matrView(this.loc, this.at, this.up);
+    this.matrP = this.matrP.matrFrustrum(
       -rx / 2,
       rx / 2,
       -ry / 2,
       ry / 2,
-      projDist,
-      projFarClip
+      this.projDist,
+      this.projFarClip
     );
-    matrVP = matrV.mulMatr(matrP);
+    this.matrVP = this.matrV.mulMatr(this.matrP);
   };
   constructor(loc, at, up) {
     if (loc != undefined) this.loc = new vec3(loc);
@@ -517,6 +521,12 @@ class cam {
     else this.at = new vec3(0);
     if (up != undefined) this.up = new vec3(up);
     else this.up = new vec3(0, 1, 0);
+    this.matrV = new mat4();
+    this.matrP = new mat4();
+    this.matrVP = new mat4();
+    this.projDist = 1;
+    this.projSize = 1;
+    this.projFarClip = 3000000;
 
     this.configMatr();
   }
@@ -544,27 +554,27 @@ class cam {
     azimuth = R2D(Math.atan2(sinP, cosP));
     elevator = R2D(Math.atan2(sinT, cosT));
 
-    azimuth += Time.globalDelta * (-60 * mL * mdx);
+    azimuth += Time.globalDelta * (-60 * input.mL * input.mdx);
 
-    elevator += Time.globalDelta * (-60 * mL * mdy);
+    elevator += Time.globalDelta * (-60 * input.mL * input.mdy);
 
     elevator = Math.min(Math.max(0.01, elevator), 177.99);
 
-    dist += Time.globalDelta * 8 * mdz;
+    dist += Time.globalDelta * 8 * input.mdz;
 
     dist = Math.max(dist, 0.1);
 
-    if (mR == 1) {
+    if (input.mR == 1) {
       let Wp, Hp, sx, sy, dv;
 
-      Wp = projSize;
-      Hp = projSize;
+      Wp = this.projSize;
+      Hp = this.projSize;
       if (gl.canvas.width > gl.canvas.height)
         Wp *= gl.canvas.width / gl.canvas.height;
       else Hp *= gl.canvas.height / gl.canvas.width;
 
-      sx = (((-1 * mdx * Wp) / gl.canvas.width) * dist) / projDist;
-      sy = (((-1 * mdy * Hp) / gl.canvas.height) * dist) / projDist;
+      sx = (((-1 * input.mdx * Wp) / gl.canvas.width) * dist) / this.projDist;
+      sy = (((-1 * input.mdy * Hp) / gl.canvas.height) * dist) / this.projDist;
 
       let dir = this.at.sub(this.loc).norm();
       let right = dir.cross(this.up).norm();
@@ -589,3 +599,9 @@ class cam {
     );
   }
 }
+
+export let camera = new cam(
+  new vec3(1.5, 5, 14),
+  new vec3(1.5, 0, 0),
+  new vec3(0, 1, 0)
+);

@@ -1,4 +1,8 @@
-class tetra {
+import { Time } from "./timer.js";
+import { vec3, mat4 } from "./mth.js";
+import { vert, prim, vertRefToTrg } from "./prim.js";
+
+export class tetra {
   constructor(size, pos, doesRotate) {
     let Vref = [
       // front

@@ -1,4 +1,8 @@
-class icoso {
+import { Time } from "./timer.js";
+import { vec3, mat4, D2R } from "./mth.js";
+import { vert, prim, vertRefToTrg } from "./prim.js";
+
+export class icoso {
   constructor(size, pos, doesRotate) {
     let r = size * Math.sqrt(5 + Math.sqrt(5)) / Math.sqrt(10);
     let h = Math.sqrt(3 / 4 * size * size - r * r * (1 - Math.cos(D2R(36))) * (1 - Math.cos(D2R(36)))) / 2;

@@ -1,4 +1,8 @@
-class dodeca {
+import { Time } from "./timer.js";
+import { vec3, mat4, D2R } from "./mth.js";
+import { vert, prim, vertRefToTrg } from "./prim.js";
+
+export class dodeca {
   constructor(size, pos, doesRotate) {
     let R = (size / 4) * (1 + Math.sqrt(5)) * Math.sqrt(3);
     let r1 = (size * Math.sqrt(5 + Math.sqrt(5))) / Math.sqrt(10);

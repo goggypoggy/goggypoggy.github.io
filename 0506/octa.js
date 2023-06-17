@@ -1,4 +1,8 @@
-class octa {
+import { Time } from "./timer.js";
+import { vec3, mat4 } from "./mth.js";
+import { vert, prim, vertRefToTrg } from "./prim.js";
+
+export class octa {
   constructor(size, pos, doesRotate) {
     let Vref = [
       new vert(new vec3(-size / 2, 0, -size / 2)), // 0

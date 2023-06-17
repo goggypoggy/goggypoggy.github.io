@@ -1,4 +1,8 @@
-class cube {
+import { Time } from "./timer.js";
+import { vec3, mat4 } from "./mth.js";
+import { vert, prim, vertRefToTrg } from "./prim.js";
+
+export class cube {
   constructor(size, pos, doesRotate) {
     let Vref = [
       new vert(new vec3(-size / 2, -size / 2, -size / 2)), // 0

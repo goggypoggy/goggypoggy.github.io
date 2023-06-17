@@ -1,4 +1,10 @@
-class vert {
+import { vec3, mat4, camera } from "./mth.js";
+import { matrW } from "./data.js";
+import { gl, shaderProgram } from "./shader.js";
+
+let MatrBuf = gl.createBuffer();
+
+export class vert {
   constructor(P, N) {
     this.P = new vec3(P);
     if (N == undefined) this.N = new vec3(0);
@@ -6,7 +12,7 @@ class vert {
   }
 }
 
-class prim {
+export class prim {
   constructor(V, I) {
     this.V = V;
     this.I = I;
@@ -69,7 +75,7 @@ class prim {
   }
   draw() {
     let matrWTr = this.matrTrans.mulMatr(matrW);
-    let matrWVP = this.matrTrans.mulMatr(matrW).mulMatr(matrVP);
+    let matrWVP = this.matrTrans.mulMatr(matrW).mulMatr(camera.matrVP);
     let posWVP = gl.getUniformLocation(shaderProgram, "MatrWVP");
 
     gl.useProgram(shaderProgram);
@@ -90,7 +96,7 @@ class prim {
   }
 }
 
-function vertRefToTrg(Vref, Iref, Vtrg, Itrg) {
+export function vertRefToTrg(Vref, Iref, Vtrg, Itrg) {
   for (let i = 0; i < Iref.length; i++) {
     Itrg.push(i);
     Vtrg.push(new vert(new vec3(Vref[Iref[i]].P.x, Vref[Iref[i]].P.y, Vref[Iref[i]].P.z)));

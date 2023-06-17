@@ -1,3 +1,8 @@
+export let gl, shaderProgram;
+
+let canvas = document.getElementById("glCanvas");
+gl = canvas.getContext("webgl2");
+
 function loadShader(type, source) {
   const shader = gl.createShader(type);
 
@@ -24,11 +29,8 @@ async function fetchSource(shaderURL) {
   }
 }
 
-function shaderInit() {
+export function shaderInit() {
   return new Promise((resolve, reject) => {
-    let canvas = document.getElementById("glCanvas");
-    gl = canvas.getContext("webgl2");
-
     let vs, fs;
     const f1 = fetch("./shd/vert.glsl")
       .then((res) => res.text())
