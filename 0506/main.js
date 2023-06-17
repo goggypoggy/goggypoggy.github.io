@@ -9,20 +9,23 @@ async function GLInit() {
 
     shaderInit()
       .then((res) => {
-        Scene.push(new cube(2, new vec3(2, 0, 1)));
+        Scene.push(new cube(1, new vec3(2, 0, 1)));
         Scene.push(new tetra(1, new vec3(-2, 0, 1)));
-        Scene.push(new octa(2, new vec3(0, 0, 1)));
-        Scene.push(new cube(2, new vec3(2, 0, -1), false));
+        Scene.push(new octa(1, new vec3(0, 0, 1)));
+        Scene.push(new icoso(1, new vec3(4.5, 0, 1)));
+
+        Scene.push(new cube(1, new vec3(2, 0, -1), false));
         Scene.push(new tetra(1, new vec3(-2, 0, -1), false));
-        Scene.push(new octa(2, new vec3(0, 0, -1), false));
+        Scene.push(new octa(1, new vec3(0, 0, -1), false));
+        Scene.push(new icoso(1, new vec3(4.5, 0, -1), false));
 
         MatrBuf = gl.createBuffer();
 
         matrW = new mat4();
 
         camera = new cam(
-          new vec3(0, 0, 10),
-          new vec3(0, 0, 0),
+          new vec3(1.5, 5, 14),
+          new vec3(1.5, 0, 0),
           new vec3(0, 1, 0)
         );
 

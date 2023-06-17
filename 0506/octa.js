@@ -1,6 +1,5 @@
 class octa {
   constructor(size, pos, doesRotate) {
-    size = size / 2;
     let Vref = [
       new vert(new vec3(-size / 2, 0, -size / 2)), // 0
       new vert(new vec3(-size / 2, 0, size / 2)), // 1
