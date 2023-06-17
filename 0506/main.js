@@ -9,8 +9,12 @@ async function GLInit() {
 
     shaderInit()
       .then((res) => {
-        Scene.push(new cube(1, new vec3(2, 0, 0)));
-        Scene.push(new tetra(1, new vec3(-2, 0, 0)));
+        Scene.push(new cube(2, new vec3(2, 0, 1)));
+        Scene.push(new tetra(1, new vec3(-2, 0, 1)));
+        Scene.push(new octa(2, new vec3(0, 0, 1)));
+        Scene.push(new cube(2, new vec3(2, 0, -1), false));
+        Scene.push(new tetra(1, new vec3(-2, 0, -1), false));
+        Scene.push(new octa(2, new vec3(0, 0, -1), false));
 
         MatrBuf = gl.createBuffer();
 

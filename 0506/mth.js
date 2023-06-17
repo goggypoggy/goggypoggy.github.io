@@ -544,9 +544,9 @@ class cam {
     azimuth = R2D(Math.atan2(sinP, cosP));
     elevator = R2D(Math.atan2(sinT, cosT));
 
-    azimuth += Time.globalDelta * 10 * (-30 * mR * mdx);
+    azimuth += Time.globalDelta * (-60 * mL * mdx);
 
-    elevator += Time.globalDelta * 10 * (-30 * mR * mdy);
+    elevator += Time.globalDelta * (-60 * mL * mdy);
 
     elevator = Math.min(Math.max(0.01, elevator), 177.99);
 
@@ -554,7 +554,7 @@ class cam {
 
     dist = Math.max(dist, 0.1);
 
-    if (mL == 1) {
+    if (mR == 1) {
       let Wp, Hp, sx, sy, dv;
 
       Wp = projSize;

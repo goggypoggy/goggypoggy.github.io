@@ -1,19 +1,16 @@
-class cube {
+class octa {
   constructor(size, pos, doesRotate) {
     size = size / 2;
     let Vref = [
-      new vert(new vec3(-size / 2, -size / 2, -size / 2)), // 0
-      new vert(new vec3(-size / 2, size / 2, -size / 2)), // 1
-      new vert(new vec3(size / 2, size / 2, -size / 2)), // 2
-      new vert(new vec3(size / 2, -size / 2, -size / 2)), // 3
-      new vert(new vec3(-size / 2, -size / 2, size / 2)), // 4
-      new vert(new vec3(-size / 2, size / 2, size / 2)), // 5
-      new vert(new vec3(size / 2, size / 2, size / 2)), // 6
-      new vert(new vec3(size / 2, -size / 2, size / 2)), // 7
+      new vert(new vec3(-size / 2, 0, -size / 2)), // 0
+      new vert(new vec3(-size / 2, 0, size / 2)), // 1
+      new vert(new vec3(size / 2, 0, size / 2)), // 2
+      new vert(new vec3(size / 2, 0, -size / 2)), // 3
+      new vert(new vec3(0, size / Math.sqrt(2), 0)), // 4
+      new vert(new vec3(0, -size / Math.sqrt(2), 0)), // 5
     ];
     let Iref = [
-      0, 1, 2, 0, 3, 2, 0, 1, 5, 0, 4, 5, 4, 5, 6, 4, 7, 6, 3, 2, 6, 3, 7, 6, 0,
-      4, 7, 0, 3, 7, 1, 2, 6, 1, 5, 6,
+      0, 1, 4, 1, 2, 4, 2, 3, 4, 0, 3, 4, 0, 1, 5, 1, 2, 5, 2, 3, 5, 0, 3, 5,
     ];
     let V = [],
       I = [];
