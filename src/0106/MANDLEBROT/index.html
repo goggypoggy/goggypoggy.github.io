@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <link rel="stylesheet" href="./styles.css">
-        <title>Mandlebrot</title>
-    </head>
-    <body>
-        <script type="module">
-            import * as lib from "./mandl.js";
-            window.addEventListener("load", ()=>{
-                lib.initGL();
-            })
-        </script>
-        <p>Use the scroll wheel to zoom in on parts of the fractal!</p>
-        <canvas width="800px" height="800px" id="glCanvas">
-        </canvas>
-    </body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Mandlebrot</title>
+  </head>
+  <body>
+    <script type="module">
+      import { main } from "./main.js";
+      window.addEventListener("load", () => {
+        main();
+      });
+    </script>
+    <canvas width="800px" height="800px" id="glCanvas"> </canvas>
+    <div id="description">
+      <p>Use the mouse to navigate the fractal!</p>
+      <p>Use the scroll wheel to zoom in!</p>
+    </div>
+  </body>
 </html>

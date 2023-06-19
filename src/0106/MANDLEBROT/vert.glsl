@@ -1,8 +1,10 @@
 #version 300 es
 
-uniform highp float Time;
+precision highp float;
 
-in highp vec4 in_pos;
+uniform float Time;
+
+in vec4 in_pos;
 
 void main( void ) 
 {
