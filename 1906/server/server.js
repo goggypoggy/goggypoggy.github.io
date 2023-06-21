@@ -30,7 +30,7 @@ setInterval(() => {
 
 setInterval(() => {
   for (let lobby of gamelobbies) lobby.gameStep();
-}, 100);
+}, 50);
 
 function destroyLobby(lobby) {
   let index = gamelobbies.indexOf(lobby);
@@ -168,6 +168,108 @@ class gameboard {
     if (x < 0 || x > 9 || y < 0 || y > 9) return;
     if (this.a[y][x] == "ship") {
       this.a[y][x] = "hit";
+      // check for rows of other hit cells in all directions
+      let k = [];
+      // right
+      for (k[0] = 0; k[0] != 4; k[0]++)
+        if (x + k[0] + 1 > 9 || this.a[y][x + k[0] + 1] != "hit") break;
+      // left
+      for (k[1] = 0; k[1] != 4; k[1]++)
+        if (x - k[1] - 1 < 0 || this.a[y][x - k[1] - 1] != "hit") break;
+      // down
+      for (k[2] = 0; k[2] != 4; k[2]++)
+        if (y + k[2] + 1 > 9 || this.a[y + k[2] + 1][x] != "hit") break;
+      // up
+      for (k[3] = 0; k[3] != 4; k[3]++)
+        if (y - k[3] - 1 < 0 || this.a[y - k[3] - 1][x] != "hit") break;
+
+      // check length of ship in all directions regardless of damage
+      let s = [];
+      // right
+      for (s[0] = 0; s[0] != 4; s[0]++)
+        if (
+          x + s[0] + 1 > 9 ||
+          (this.a[y][x + s[0] + 1] != "hit" &&
+            this.a[y][x + s[0] + 1] != "ship")
+        )
+          break;
+      // left
+      for (s[1] = 0; s[1] != 4; s[1]++)
+        if (
+          x - s[1] - 1 < 0 ||
+          (this.a[y][x - s[1] - 1] != "hit" &&
+            this.a[y][x - s[1] - 1] != "ship")
+        )
+          break;
+      // down
+      for (s[2] = 0; s[2] != 4; s[2]++)
+        if (
+          y + s[2] + 1 > 9 ||
+          (this.a[y + s[2] + 1][x] != "hit" &&
+            this.a[y + s[2] + 1][x] != "ship")
+        )
+          break;
+      // up
+      for (s[3] = 0; s[3] != 4; s[3]++)
+        if (
+          y - s[3] - 1 < 0 ||
+          (this.a[y - s[3] - 1][x] != "hit" &&
+            this.a[y - s[3] - 1][x] != "ship")
+        )
+          break;
+      console.log(
+        `Hit at: ${x}|${y}. Hit cells: R${k[0]}L${k[1]}D${k[2]}U${k[3]}. Ship/hit cells: R${s[0]}L${s[1]}D${s[2]}U${s[3]}`
+      );
+
+      // if (s[0] == 0 && s[1] == 0 && s[2] == 0 && s[3] == 0) {
+      //   this.a[y][x] = "dead";
+      //   return "hit";
+      // }
+
+      let dead = [false, false, false, false]; // R0 L1 D2 U3
+
+      for (let i = 0; i < 4; i++)
+        if (k[i] == s[i] && s[i] != 4 && s[i] != 0) dead[i] = true;
+
+      if (
+        (dead[0] && dead[1]) || // parts are hit left and right of hit cell
+        (dead[2] && dead[3]) || // parts are hit up and down of hit cell
+        (dead[0] && s[1] == 0) || // parts are hit left of hit cell and no cells to right
+        (dead[1] && s[0] == 0) || // parts are hit right of hit cell and no cells to left
+        (dead[2] && s[3] == 0) || // parts are hit down of hit cell and no cells to up
+        (dead[3] && s[2] == 0) || // parts are hit up of hit cell and no cells to down
+        (s[0] == 0 && s[1] == 0 && s[2] == 0 && s[3] == 0) // ship is 1 cell long
+      ) {
+        let dirX = [1, -1, 0, 0],
+          dirY = [0, 0, 1, -1];
+        let FdirX = [0, 1, 1, 1, 0, -1, -1, -1],
+          FdirY = [-1, -1, 0, 1, 1, 1, 0, -1];
+        // go through 4 directions
+        for (let i = 0; i < 4; i++)
+          if (k[i] == s[i] && s[i] != 4) {
+            // kill the ship in one directon
+            for (let j = 0; j < s[i] + 1; j++) {
+              this.a[y + dirY[i] * j][x + dirX[i] * j] = "dead";
+              // mark the area
+              for (let kk = 0; kk < 8; kk++)
+                if (
+                  x + dirX[i] * j + FdirX[kk] < 0 ||
+                  x + dirX[i] * j + FdirX[kk] > 9 ||
+                  y + dirY[i] * j + FdirY[kk] < 0 ||
+                  y + dirY[i] * j + FdirY[kk] > 9
+                )
+                  continue;
+                else if (
+                  this.a[y + dirY[i] * j + FdirY[kk]][
+                    x + dirX[i] * j + FdirX[kk]
+                  ] == "sea"
+                )
+                  this.a[y + dirY[i] * j + FdirY[kk]][
+                    x + dirX[i] * j + FdirX[kk]
+                  ] = "miss";
+            }
+          }
+      }
       return "hit";
     } else if (this.a[y][x] == "sea") {
       this.a[y][x] = "miss";
@@ -186,6 +288,7 @@ class gameboard {
 
 class gamelobby {
   gameEnd(winningPlayer) {
+    this.phase = "End";
     // return default callbacks
     this.P1.on("disconnect", () => {
       console.log(`Client with id ${this.P1.id} has disconnected`);
@@ -216,14 +319,50 @@ class gamelobby {
 
     // emit game end signal
     if (winningPlayer == 1) {
-      this.P1.emit("gameEnd", "win");
-      this.P2.emit("gameEnd", "lose");
+      this.P1.emit(
+        "gameUpdate",
+        "win",
+        this.phase,
+        this.board1.boardOut(false),
+        this.board2.boardOut(false)
+      );
+      this.P2.emit(
+        "gameUpdate",
+        "lose",
+        this.phase,
+        this.board2.boardOut(false),
+        this.board1.boardOut(false)
+      );
     } else if (winningPlayer == 2) {
-      this.P1.emit("gameEnd", "lose");
-      this.P2.emit("gameEnd", "win");
+      this.P1.emit(
+        "gameUpdate",
+        "lose",
+        this.phase,
+        this.board1.boardOut(false),
+        this.board2.boardOut(false)
+      );
+      this.P2.emit(
+        "gameUpdate",
+        "win",
+        this.phase,
+        this.board2.boardOut(false),
+        this.board1.boardOut(false)
+      );
     } else {
-      this.P1.emit("gameEnd", "draw");
-      this.P2.emit("gameEnd", "draw");
+      this.P1.emit(
+        "gameUpdate",
+        "draw",
+        this.phase,
+        this.board1.boardOut(false),
+        this.board2.boardOut(false)
+      );
+      this.P2.emit(
+        "gameUpdate",
+        "draw",
+        this.phase,
+        this.board2.boardOut(false),
+        this.board1.boardOut(false)
+      );
     }
 
     // destroy the lobby
@@ -238,6 +377,10 @@ class gamelobby {
     this.board2 = new gameboard();
     // set first attacker
     this.attacker = 1;
+    // set game constants
+    this.setupTime = 90;
+    this.p1Ready = false;
+    this.p2Ready = false;
     // assign new P1 client callbacks
     this.P1.on("disconnect", () => {
       console.log(`Client with id ${this.P1.id} has disconnected`);
@@ -249,11 +392,21 @@ class gamelobby {
       this.P2.emit("opponentLeft");
       this.gameEnd(2);
     });
-    this.P1.on("concedeRequest", () => {
-      console.log(`Client with id ${this.P1.id} has left the game`);
-      this.P1.emit("concedeSuccess");
-      this.P2.emit("opponentConcede");
-      this.gameEnd(2);
+    this.P1.on("earlyReady", () => {
+      console.log(`Client with id ${this.P1.id} is ready early`);
+      let status = this.board1.fullValidate();
+      if (status == "allGood") {
+        this.P1.emit("earlyReadySuccess");
+        this.P2.emit("opponentEarlyReady");
+        this.P2.emit("boardVerification", status);
+        this.p1Ready = true;
+      } else this.P1.emit("boardVerification", status);
+    });
+    this.P1.on("unearlyReady", () => {
+      console.log(`Client with id ${this.P1.id} is not ready early`);
+      this.p1Ready = false;
+      this.P1.emit("unearlyReadySuccess");
+      this.P2.emit("opponentUnearlyReady");
     });
     this.P1.on("gameDeploy", (x, y) => {
       if (this.phase != "Setup") return;
@@ -281,11 +434,21 @@ class gamelobby {
       this.P1.emit("opponentLeft");
       this.gameEnd(1);
     });
-    this.P2.on("concedeRequest", () => {
-      console.log(`Client with id ${this.P2.id} has left the game`);
-      this.P2.emit("concedeSuccess");
-      this.P1.emit("opponentConcede");
-      this.gameEnd(1);
+    this.P2.on("earlyReady", () => {
+      console.log(`Client with id ${this.P2.id} is ready early`);
+      let status = this.board2.fullValidate();
+      if (status == "allGood") {
+        this.P2.emit("earlyReadySuccess");
+        this.P1.emit("opponentEarlyReady");
+        this.P2.emit("boardVerification", status);
+        this.p2Ready = true;
+      } else this.P2.emit("boardVerification", status);
+    });
+    this.P2.on("unearlyReady", () => {
+      console.log(`Client with id ${this.P2.id} is not ready early`);
+      this.p2Ready = false;
+      this.P2.emit("unearlyReadySuccess");
+      this.P1.emit("opponentUnearlyReady");
     });
     this.P2.on("gameDeploy", (x, y) => {
       if (this.phase != "Setup") return;
@@ -318,22 +481,21 @@ class gamelobby {
   gameStep() {
     switch (this.phase) {
       case "Setup":
-        let setupTime = 30;
         this.P1.emit(
           "gameUpdate",
-          Math.floor(setupTime - (getTime() - this.setphstTime)),
+          Math.floor(this.setupTime - (getTime() - this.setphstTime)),
           this.phase,
           this.board1.boardOut(false),
           this.board2.boardOut(true)
         );
         this.P2.emit(
           "gameUpdate",
-          Math.floor(setupTime - (getTime() - this.setphstTime)),
+          Math.floor(this.setupTime - (getTime() - this.setphstTime)),
           this.phase,
           this.board2.boardOut(false),
           this.board1.boardOut(true)
         );
-        if (setupTime - (getTime() - this.setphstTime) <= 0) {
+        if (this.setupTime - (getTime() - this.setphstTime) <= 0 || this.p1Ready && this.p2Ready) {
           if (
             this.board1.fullValidate() == "allGood" &&
             this.board2.fullValidate() == "allGood"
