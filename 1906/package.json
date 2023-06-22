@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build-client": "Z:/Sum2023/1906/node_modules/.bin/rollup -c",
+    "build-client": "./node_modules/.bin/rollup -c",
     "start-server": "cd dist && node ../server/server.js"
   },
   "author": "",
