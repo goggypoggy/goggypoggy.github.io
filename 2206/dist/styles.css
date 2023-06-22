@@ -1,0 +1,8 @@
+body {
+    background-color:black;
+}
+
+#Canvas2d {
+    background-color:darkslateblue;
+    margin-left: calc((100% - (1000px)) / 2 - 5%);
+}
