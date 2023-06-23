@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build-client": "Z:/Sum2023/2206/node_modules/.bin/rollup -c",
+    "build-client": " ",
     "start-server": "cd dist && node ../server/server.js"
   },
   "author": "",
