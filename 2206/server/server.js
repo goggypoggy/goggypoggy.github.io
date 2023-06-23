@@ -46,10 +46,13 @@ class time {
 
 class vec2 {
   constructor(x, y) {
-    this.x = x, this.y = y;
+    (this.x = x), (this.y = y);
   }
   divNum(num) {
     return new vec2(this.x / num, this.y / num);
+  }
+  mulNum(num) {
+    return new vec2(this.x * num, this.y * num);
   }
   dot(v) {
     return this.x * v.x + this.y * v.y;
@@ -61,7 +64,7 @@ class vec2 {
     let len2 = this.dot(this);
 
     if (len2 == 1 || len2 == 0) return this;
-    else return this.divNum(Math.sqrt(len2)); 
+    else return this.divNum(Math.sqrt(len2));
   }
 }
 
@@ -86,14 +89,107 @@ const io = new Server(server);
 
 const clients = [];
 const players = [];
+const misc = [];
+
+function destroyMisc(item) {
+  let index = misc.indexOf(item);
+  if (index > -1) {
+    misc.splice(index, 1);
+  }
+}
+
+class bullet {
+  constructor(player) {
+    this.owner = player.socket.id;
+    this.type = "bullet";
+    this.pos = {
+      X: player.pos.X + 20 * Math.cos(D2R(player.pos.Angle)),
+      Y: player.pos.Y + 20 * Math.sin(D2R(player.pos.Angle)),
+      Angle: player.pos.Angle,
+    };
+    this.lifetime = {
+      current: 0,
+      max: player.stats.bullet.lifetime,
+    };
+    this.stats = {
+      dmg: player.stats.bullet.dmg,
+      maxSpeed: player.stats.bullet.maxSpeed,
+      homing: player.stats.bullet.homing,
+    };
+    this.speed = {
+      Angle: player.pos.Angle,
+      value:
+        player.stats.bullet.speed +
+        Math.sqrt(
+          player.speed.X * player.speed.X + player.speed.Y * player.speed.Y
+        ),
+    };
+  }
+  move() {
+    this.pos.X += this.speed.value * Math.cos(D2R(this.speed.Angle));
+    this.pos.Y += this.speed.value * Math.sin(D2R(this.speed.Angle));
+
+    // homing algorythm is gonna be here
+
+    // check colision with other players
+    for (let pl of players) {
+      if (pl.socket.id == this.owner) continue;
+      if (
+        (pl.pos.X - this.pos.X) * (pl.pos.X - this.pos.X) +
+          (pl.pos.Y - this.pos.Y) * (pl.pos.Y - this.pos.Y) <=
+        10000
+      ) {
+        pl.shot(this.stats.dmg);
+        destroyMisc(this);
+      }
+    }
+    // kill the bullet if you have to
+    this.lifetime.current += Time.localDelta;
+    if (this.lifetime.current > this.lifetime.max) destroyMisc(this);
+  }
+}
 
 class player {
+  shoot() {
+    if (this.stats.reload.current <= 0) {
+      misc.push(new bullet(this));
+      this.stats.reload.current = this.stats.reload.max;
+    }
+  }
   constructor(socket) {
     this.socket = socket;
+    // ship stats
+    this.stats = {
+      hp: {
+        current: 10,
+        max: 10,
+      },
+      regen: {
+        passive: 1,
+        active: 0,
+      },
+      shield: "none",
+      shieldHp: 0,
+      shieldRegen: {
+        passive: 0,
+        active: 0,
+      },
+      maxSpeed: 10,
+      reload: {
+        current: 0,
+        max: 0.25,
+      },
+      bullet: {
+        dmg: 1,
+        speed: 15,
+        lifetime: 2,
+        homing: 0,
+      },
+    };
     // ship pos
     this.pos = {
-      X: (Math.random() * 2 - 1) * 200,
-      Y: (Math.random() * 2 - 1) * 200,
+      X: (Math.random() * 2 - 1) * 2000,
+      Y: (Math.random() * 2 - 1) * 2000,
       Angle: 90,
     };
     // ship acceleration
@@ -101,32 +197,40 @@ class player {
       Angle: this.pos.Angle, // RELATIVE TO SHIP
       value: 0,
     };
+    this.deaccel = {
+      Angle: 0, // RELATIVE TO SHIP
+      value: 0,
+    };
     // ship speed
     this.speed = {
       X: 0,
       Y: 0,
-      Max: 10,
     };
+    this.lastDmgTime = 0;
+
     this.socket.on("inputResponse", (res) => {
       let input = JSON.parse(res);
       // manage acceleration
-      let speedV2 = new vec2(this.speed.X, this.speed.Y);
-      let accelV2 = new vec2(this.accel.value * Math.cos(D2R(this.accel.Angle)), this.accel.value * Math.sin(D2R(this.accel.Angle)));
-      let speedDotAccel = speedV2.norm().dot(accelV2.norm());
-      if (input.W || input.Q || input.E) this.accel.value = 10;
-      else if (speedDotAccel > -0.6 && speedV2.len() > 0.1)
-      {
-        console.log(`${this.socket.id} is trying to slow down`);
-        this.accel.value = -10;
-      }
-      else (this.accel.value = 0);
+      if (input.W || input.Q || input.E)
+        (this.accel.value = 10), (this.deaccel.value = 0);
+      else if (
+        this.speed.X * this.speed.X + this.speed.Y * this.speed.Y >
+        0.00000001
+      ) {
+        this.deaccel.value = 10;
+        this.accel.value = 0;
+      } else (this.accel.value = 0), (this.deaccel.value = 0);
       // manage acceleration angle
-      this.accel.Angle = (input.Q - input.E) / (input.W ? 2 : 1);
+      this.accel.Angle = ((input.Q - input.E) / (input.W ? 2 : 1)) * 90;
+      this.deaccel.Angle =
+        (Math.atan2(-this.speed.Y, -this.speed.X) * 180) / Math.PI;
       // manage ship angle
-      let deltaAngle = (input.A - input.D) * 120 * Time.localDelta;
+      let deltaAngle = (input.A - input.D) * 240 * Time.localDelta;
       this.pos.Angle += deltaAngle;
       if (this.pos.Angle > 180) this.pos.Angle -= 360;
       if (this.pos.Angle < -180) this.pos.Angle += 360;
+      // shoot
+      if (input.Space) this.shoot();
     });
   }
   move() {
@@ -137,15 +241,43 @@ class player {
     this.speed.X += Math.cos(D2R(angle)) * this.accel.value * Time.localDelta;
     this.speed.Y += Math.sin(D2R(angle)) * this.accel.value * Time.localDelta;
 
+    angle = this.deaccel.Angle;
+    this.speed.X += Math.cos(D2R(angle)) * this.deaccel.value * Time.localDelta;
+    this.speed.Y += Math.sin(D2R(angle)) * this.deaccel.value * Time.localDelta;
+
     if (
       this.speed.X * this.speed.X + this.speed.Y * this.speed.Y >
-      this.speed.Max * this.speed.Max
+      this.stats.maxSpeed * this.stats.maxSpeed
     ) {
       let len = Math.sqrt(
         this.speed.X * this.speed.X + this.speed.Y * this.speed.Y
       );
-      this.speed.X = (this.speed.X / len) * this.speed.Max;
-      this.speed.Y = (this.speed.Y / len) * this.speed.Max;
+      this.speed.X = (this.speed.X / len) * this.stats.maxSpeed;
+      this.speed.Y = (this.speed.Y / len) * this.stats.maxSpeed;
+    }
+
+    if (this.stats.reload.current > 0)
+      this.stats.reload.current -= Time.localDelta;
+    if (this.lastDmgTime > 0)
+      this.lastDmgTime -= Time.localDelta;
+    else if (this.stats.hp.current < this.stats.hp.max) {
+      this.stats.hp.current += this.stats.regen.passive * Time.localDelta;
+      if (this.stats.hp.current >= this.stats.hp.max)
+        this.stats.hp.current = this.stats.hp.max;
+    }
+  }
+  shot(dmg) {
+    this.lastDmgTime = 5;
+    this.stats.hp.current -= dmg;
+    if (this.stats.hp.current <= 0) {
+      this.socket.on("respawnRequest", () => {
+        players.push(new player(this.socket));
+        this.socket.emit("respawnComplete");
+      });
+      this.socket.emit("deathMessage");
+
+      let index = players.indexOf(this);
+      players.splice(index, 1);
     }
   }
 }
@@ -154,20 +286,30 @@ class player {
 setInterval(() => {
   Time.response();
   for (let cl of players) {
+    cl.socket.emit("drawAll");
+    cl.socket.emit("inputRequest");
     cl.move();
     cl.socket.emit(
       "sendInfo",
       JSON.stringify(cl.pos),
       JSON.stringify(cl.speed),
-      JSON.stringify(cl.accel)
+      JSON.stringify(cl.accel),
+      JSON.stringify(cl.stats)
     );
-    for (let pl of players)
+    for (let ms of misc) {
       if (
-        Math.abs(pl.pos.X - cl.pos.X) < 600 &&
-        Math.abs(pl.pos.Y - cl.pos.Y) < 400
+        Math.abs(ms.pos.X - cl.pos.X) < 1000 &&
+        Math.abs(ms.pos.Y - cl.pos.Y) < 1000
       )
-        cl.socket.emit("drawPlayer", JSON.stringify(pl.pos));
-    cl.socket.emit("inputRequest");
+        switch (ms.type) {
+          case "bullet":
+            cl.socket.emit("drawItem", JSON.stringify(ms.pos), "bullet");
+            break;
+        }
+      ms.move();
+    }
+    for (let pl of players)
+      cl.socket.emit("drawItem", JSON.stringify(pl.pos), "player");
   }
 }, 10);
 
@@ -180,9 +322,12 @@ io.on("connection", (socket) => {
     let index = clients.indexOf(socket);
     if (index > -1) {
       clients.splice(index, 1);
-      players.splice(index, 1);
       console.log(`${socket.id} removed from client list`);
-      console.log(`${socket.id} removed from player list`);
+      for (let i = 0; i < players.length; i++)
+        if (players[i] != undefined && players[i].socket.id == socket.id) {
+          console.log(`${players[i].socket.id} removed from player list`);
+          players.splice(i, 1);
+        }
     }
   });
 });

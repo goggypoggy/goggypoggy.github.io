@@ -3,6 +3,9 @@ body {
 }
 
 #Canvas2d {
-    background-color:darkslateblue;
     margin-left: calc((100% - (1000px)) / 2 - 5%);
+    background-image: url("./Blue_Nebula_02-1024x1024.png");
+    background-repeat: repeat;
+    background-position-x: 0px;
+    background-position-y: 0px;
 }
