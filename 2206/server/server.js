@@ -74,6 +74,14 @@ function D2R(A) {
   return A * (Math.PI / 180.0);
 }
 
+function R2D(R) {
+  return (R * 180) / Math.PI;
+}
+
+function Dto0360(D) {
+  return D < 0 ? 360 + D : (D > 360 ? D - 360 : D);
+}
+
 const http = require("http");
 const express = require("express");
 const morgan = require("morgan");
@@ -105,7 +113,7 @@ class bullet {
     this.pos = {
       X: player.pos.X + 20 * Math.cos(D2R(player.pos.Angle)),
       Y: player.pos.Y + 20 * Math.sin(D2R(player.pos.Angle)),
-      Angle: player.pos.Angle,
+      Angle: Dto0360(player.pos.Angle),
     };
     this.lifetime = {
       current: 0,
@@ -113,7 +121,6 @@ class bullet {
     };
     this.stats = {
       dmg: player.stats.bullet.dmg,
-      maxSpeed: player.stats.bullet.maxSpeed,
       homing: player.stats.bullet.homing,
     };
     this.speed = {
@@ -129,7 +136,23 @@ class bullet {
     this.pos.X += this.speed.value * Math.cos(D2R(this.speed.Angle));
     this.pos.Y += this.speed.value * Math.sin(D2R(this.speed.Angle));
 
-    // homing algorythm is gonna be here
+    let closest, closAngle = this.speed.Angle;
+
+    for (let elem of players) {
+      if (elem.socket.id == this.owner)
+        continue;
+      let dist = Math.sqrt(
+        (this.pos.X - elem.pos.X) * (this.pos.X - elem.pos.X) +
+          (this.pos.Y - elem.pos.Y) * (this.pos.Y - elem.pos.Y)
+      );
+      if (closest == undefined || closest > dist) {
+        closest = dist;
+        closAngle = R2D(Math.atan2(elem.pos.Y - this.pos.Y, elem.pos.X - this.pos.X));
+      }
+    }
+    
+    this.speed.Angle += (Dto0360(closAngle) - Dto0360(this.speed.Angle)) * (this.stats.homing / 5);
+    this.pos.Angle = this.speed.Angle;
 
     // check colision with other players
     for (let pl of players) {
@@ -137,7 +160,7 @@ class bullet {
       if (
         (pl.pos.X - this.pos.X) * (pl.pos.X - this.pos.X) +
           (pl.pos.Y - this.pos.Y) * (pl.pos.Y - this.pos.Y) <=
-        10000
+        900
       ) {
         pl.shot(this.stats.dmg);
         destroyMisc(this);
@@ -175,15 +198,16 @@ class player {
         active: 0,
       },
       maxSpeed: 10,
+      acceleration: 15,
       reload: {
         current: 0,
         max: 0.25,
       },
       bullet: {
         dmg: 1,
-        speed: 15,
-        lifetime: 2,
-        homing: 0,
+        speed: 5,
+        lifetime: 5,
+        homing: 1,
       },
     };
     // ship pos
@@ -212,12 +236,12 @@ class player {
       let input = JSON.parse(res);
       // manage acceleration
       if (input.W || input.Q || input.E)
-        (this.accel.value = 10), (this.deaccel.value = 0);
+        (this.accel.value = this.stats.acceleration), (this.deaccel.value = 0);
       else if (
         this.speed.X * this.speed.X + this.speed.Y * this.speed.Y >
-        0.00000001
+        0.0001
       ) {
-        this.deaccel.value = 10;
+        this.deaccel.value = this.stats.acceleration;
         this.accel.value = 0;
       } else (this.accel.value = 0), (this.deaccel.value = 0);
       // manage acceleration angle
@@ -258,8 +282,7 @@ class player {
 
     if (this.stats.reload.current > 0)
       this.stats.reload.current -= Time.localDelta;
-    if (this.lastDmgTime > 0)
-      this.lastDmgTime -= Time.localDelta;
+    if (this.lastDmgTime > 0) this.lastDmgTime -= Time.localDelta;
     else if (this.stats.hp.current < this.stats.hp.max) {
       this.stats.hp.current += this.stats.regen.passive * Time.localDelta;
       if (this.stats.hp.current >= this.stats.hp.max)

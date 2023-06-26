@@ -89,13 +89,21 @@ window.addEventListener("keyup", (event) => {
   }
 });
 
-let infoPos;
-let infoSpeed;
-let infoAccel;
-let infoStats;
+let infoPos = {
+    X: 0,
+    Y: 0,
+    Angle: 0,
+  },
+  infoSpeed,
+  infoAccel,
+  infoStats;
 
 function D2R(A) {
   return A * (Math.PI / 180.0);
+}
+
+function R2D(R) {
+  return (R * 180) / Math.PI;
 }
 
 function getTime() {
@@ -122,24 +130,74 @@ class itemPlayer extends item {
     this.color = color;
   }
   drawItem() {
-    if (Math.abs(cnv.canvas.width / 2 - this.posX) <= (cnv.canvas.width + 100) / 2 && Math.abs(cnv.canvas.height / 2 - this.posY) <= (cnv.canvas.height + 100) / 2) {
-    cnv.lineWidth = 4;
-    cnv.strokeStyle = this.color;
-    cnv.beginPath();
-    cnv.moveTo(
-      this.posX + 20 * Math.cos(D2R(this.angle)),
-      this.posY + 20 * -Math.sin(D2R(this.angle))
-    );
-    cnv.lineTo(
-      this.posX + 20 * Math.cos(D2R(this.angle + 140)),
-      this.posY + 20 * -Math.sin(D2R(this.angle + 140))
-    );
-    cnv.lineTo(
-      this.posX + 20 * Math.cos(D2R(this.angle - 140)),
-      this.posY + 20 * -Math.sin(D2R(this.angle - 140))
-    );
-    cnv.closePath();
-    cnv.stroke();
+    if (
+      Math.abs(this.posX - infoPos.X) <= (cnv.canvas.width + 100) / 2 &&
+      Math.abs(infoPos.Y - this.posY) <= (cnv.canvas.height + 100) / 2
+    ) {
+      cnv.lineWidth = 4;
+      cnv.strokeStyle = this.color;
+      cnv.beginPath();
+      cnv.moveTo(
+        this.posX -
+          infoPos.X +
+          cnv.canvas.width / 2 +
+          20 * Math.cos(D2R(this.angle)),
+        infoPos.Y -
+          this.posY +
+          cnv.canvas.height / 2 +
+          20 * -Math.sin(D2R(this.angle))
+      );
+      cnv.lineTo(
+        this.posX -
+          infoPos.X +
+          cnv.canvas.width / 2 +
+          20 * Math.cos(D2R(this.angle + 140)),
+        infoPos.Y -
+          this.posY +
+          cnv.canvas.height / 2 +
+          20 * -Math.sin(D2R(this.angle + 140))
+      );
+      cnv.lineTo(
+        this.posX -
+          infoPos.X +
+          cnv.canvas.width / 2 +
+          20 * Math.cos(D2R(this.angle - 140)),
+        infoPos.Y -
+          this.posY +
+          cnv.canvas.height / 2 +
+          20 * -Math.sin(D2R(this.angle - 140))
+      );
+      cnv.closePath();
+      cnv.stroke();
+    } else {
+      let Angle = Math.atan2(this.posY - infoPos.Y, this.posX - infoPos.X);
+
+      let centerX = cnv.canvas.width / 2 + Math.cos(Angle) * (cnv.canvas.width / 2 - 30),
+        centerY = cnv.canvas.height / 2 - Math.sin(Angle) * (cnv.canvas.height / 2 - 30);
+
+      cnv.lineWidth = 4;
+      cnv.strokeStyle = "#FFAAAA";
+      cnv.beginPath();
+      cnv.moveTo(
+        centerX +
+          10 * Math.cos(Angle),
+        centerY +
+          10 * -Math.sin(Angle)
+      );
+      cnv.lineTo(
+        centerX +
+          10 * Math.cos(Angle + R2D(140)),
+        centerY +
+          10 * -Math.sin(Angle + R2D(140))
+      );
+      cnv.lineTo(
+        centerX +
+          10 * Math.cos(Angle - R2D(140)),
+        centerY +
+          10 * -Math.sin(Angle - R2D(140))
+      );
+      cnv.closePath();
+      cnv.stroke();
     }
   }
 }
@@ -155,16 +213,34 @@ class itemBullet extends item {
     cnv.strokeStyle = this.color;
     cnv.beginPath();
     cnv.moveTo(
-      this.posX + 10 * Math.cos(D2R(this.angle)),
-      this.posY + 10 * -Math.sin(D2R(this.angle))
+      this.posX -
+        infoPos.X +
+        cnv.canvas.width / 2 +
+        10 * Math.cos(D2R(this.angle)),
+      infoPos.Y -
+        this.posY +
+        cnv.canvas.height / 2 +
+        10 * -Math.sin(D2R(this.angle))
     );
     cnv.lineTo(
-      this.posX + 10 * Math.cos(D2R(this.angle + 150)),
-      this.posY + 10 * -Math.sin(D2R(this.angle + 150))
+      this.posX -
+        infoPos.X +
+        cnv.canvas.width / 2 +
+        10 * Math.cos(D2R(this.angle + 150)),
+      infoPos.Y -
+        this.posY +
+        cnv.canvas.height / 2 +
+        10 * -Math.sin(D2R(this.angle + 150))
     );
     cnv.lineTo(
-      this.posX + 10 * Math.cos(D2R(this.angle - 150)),
-      this.posY + 10 * -Math.sin(D2R(this.angle - 150))
+      this.posX -
+        infoPos.X +
+        cnv.canvas.width / 2 +
+        10 * Math.cos(D2R(this.angle - 150)),
+      infoPos.Y -
+        this.posY +
+        cnv.canvas.height / 2 +
+        10 * -Math.sin(D2R(this.angle - 150))
     );
     cnv.closePath();
     cnv.stroke();
@@ -200,18 +276,10 @@ class itemDthMsg extends item {
   drawItem() {
     cnv.font = "40px sans-serif";
     cnv.fillStyle = "#FFAAAA";
-    cnv.fillText(
-      "Your ship was destroyed",
-      this.posX,
-      this.posY + 20
-    );
+    cnv.fillText("Your ship was destroyed", this.posX, this.posY + 20);
     cnv.font = "20px sans-serif";
     cnv.fillStyle = "#AAAAAA";
-    cnv.fillText(
-      "Reload the page to respawn",
-      this.posX,
-      this.posY + 70
-    );
+    cnv.fillText("Reload the page to respawn", this.posX, this.posY + 70);
   }
 }
 
@@ -245,24 +313,10 @@ async function main() {
     let Pos = JSON.parse(pos);
     switch (type) {
       case "player":
-        itemQueue.push(
-          new itemPlayer(
-            Pos.X - infoPos.X + cnv.canvas.width / 2,
-            infoPos.Y - Pos.Y + cnv.canvas.height / 2,
-            Pos.Angle,
-            "#FFFFFF"
-          )
-        );
+        itemQueue.push(new itemPlayer(Pos.X, Pos.Y, Pos.Angle, "#FFFFFF"));
         break;
       case "bullet":
-        itemQueue.push(
-          new itemBullet(
-            Pos.X - infoPos.X + cnv.canvas.width / 2,
-            infoPos.Y - Pos.Y + cnv.canvas.height / 2,
-            Pos.Angle,
-            "#FF0000"
-          )
-        );
+        itemQueue.push(new itemBullet(Pos.X, Pos.Y, Pos.Angle, "#FF0000"));
         break;
     }
   });
@@ -289,8 +343,9 @@ async function main() {
     drawQueue();
   });
 
-  socket.on("respawnComplete", ()=>{
-    document.getElementById("Canvas2d").style.backgroundImage = "url(\"./Blue_Nebula_02-1024x1024.png\")";
+  socket.on("respawnComplete", () => {
+    document.getElementById("Canvas2d").style.backgroundImage =
+      'url("./Blue_Nebula_02-1024x1024.png")';
   });
 }
 
